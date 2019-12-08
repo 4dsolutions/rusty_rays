@@ -343,15 +343,48 @@ pub mod tetrahedron {
         }
     }
 
+    pub fn emod() -> TetEdges {
+        let phi:   f64 = (1.0 + 5_f64.sqrt())/2.0;
+        let root3: f64 = 3_f64.sqrt();
+        let root5: f64 = 5_f64.sqrt();
+
+        TetEdges {
+            ab: 1.0,
+            ac: root3 * 1.0/phi,
+            ad: ((5.0 - root5)/2.0).sqrt(),
+            bc: (3.0 - root5)/2.0,
+            cd: (5.0 - 2.0 * root5).sqrt(),
+            db: 1.0 / phi,
+        }
+    }
+
 }
 
 #[cfg(test)]
 mod tests {
+
     use std::f64;
     use super::*;
     use vlib::Ray;
     use tetrahedron::Tet;
 
+    #[test]
+    fn emod() {
+        let s3: f64 = (9.0_f64/8.0).sqrt();
+        let edges = tetrahedron::emod();
+        let super_rt = 20.0 * s3;
+        approx::abs_diff_eq!(edges.volume(), super_rt/120.0);
+    }
+
+    #[test]
+    fn tmod() {
+        let phi: f64 = (1.0 + 5_f64.sqrt())/2.0;
+        let root2 = 2.0_f64.sqrt();
+        let edges = tetrahedron::emod();
+        let tfactor = (2.0_f64/3.0).powf(1.0/3.0) * phi * root2;
+        let tvol = edges.volume() * tfactor.powf(3.0);
+        approx::abs_diff_eq!(tvol, 1.0/24.0);
+    }
 
     #[test]
     fn cube() {
