@@ -1,5 +1,6 @@
 pub mod vlib {
 
+    #[derive(Copy, Clone)]
     pub struct Vivm {
         pub a: f64,
         pub b: f64,
@@ -7,6 +8,7 @@ pub mod vlib {
         pub d: f64,
     }
 
+    #[derive(Copy, Clone)]
     pub struct Vxyz {
         pub x: f64,
         pub y: f64,
@@ -196,6 +198,77 @@ pub mod vlib {
 
 pub mod tetrahedron {
 
+    use super::*;
+    use vlib::Ray;
+
+    pub struct Txyz {
+        pub a: vlib::Vxyz,
+        pub b: vlib::Vxyz,
+        pub c: vlib::Vxyz,
+        pub d: vlib::Vxyz,
+    }
+
+    impl Txyz {
+        pub fn new(rays : [vlib::Vxyz; 4]) -> Txyz {
+            Txyz {
+                a: rays[0],
+                b: rays[1],
+                c: rays[2],
+                d: rays[3],
+            }
+        }
+    }
+
+    pub struct Tivm {
+        pub a: vlib::Vivm,
+        pub b: vlib::Vivm,
+        pub c: vlib::Vivm,
+        pub d: vlib::Vivm,
+    }
+
+    impl Tivm {
+        pub fn new(rays : [vlib::Vivm; 4]) -> Tivm {
+            Tivm {
+                a: rays[0],
+                b: rays[1],
+                c: rays[2],
+                d: rays[3],
+            }
+        }
+    }
+
+    pub trait Tet {
+        fn volume(&self) -> f64;
+    }
+
+    impl Tet for Tivm {
+        fn volume(&self) -> f64 {
+            let edges = TetEdges{
+                ab: self.a.sub(&self.b).length(),
+                ac: self.a.sub(&self.c).length(),
+                ad: self.a.sub(&self.d).length(),
+                bc: self.b.sub(&self.c).length(),
+                cd: self.c.sub(&self.d).length(),
+                db: self.d.sub(&self.b).length(),
+            };
+            edges.volume()
+        }
+    }
+    
+    impl Tet for Txyz {
+        fn volume(&self) -> f64 {
+            let edges = TetEdges{
+                ab: self.a.sub(&self.b).length(),
+                ac: self.a.sub(&self.c).length(),
+                ad: self.a.sub(&self.d).length(),
+                bc: self.b.sub(&self.c).length(),
+                cd: self.c.sub(&self.d).length(),
+                db: self.d.sub(&self.b).length(),
+            };
+            edges.volume()
+        }
+    }
+
     pub struct TetEdges {
         pub ab: f64,
         pub ac: f64,
@@ -204,6 +277,7 @@ pub mod tetrahedron {
         pub cd: f64,
         pub db: f64,
     }
+
 
     impl TetEdges {
         pub fn volume(&self) -> f64 {
@@ -255,6 +329,7 @@ pub mod tetrahedron {
 mod tests {
     use super::*;
     use vlib::Ray;
+    use tetrahedron::Tet;
 
     #[test]
     fn it_works() {
@@ -291,5 +366,26 @@ mod tests {
         let x2 = vlib::Vxyz::new(&[1.0_f64, 1.0, 1.0]);
         let r = x1.add(&x2); 
         assert_eq!((2.0_f64, 2.0, 2.0), (r.x, r.y, r.z));
+    }
+
+    #[test]
+    fn vol_ivm(){
+        let q0 = vlib::Vivm::new(&[1.0, 0.0, 0.0, 0.0]);
+        let q1 = vlib::Vivm::new(&[0.0, 1.0, 0.0, 0.0]);
+        let q2 = vlib::Vivm::new(&[0.0, 0.0, 1.0, 0.0]);
+        let q3 = vlib::Vivm::new(&[0.0, 0.0, 0.0, 1.0]);
+        let tet = tetrahedron::Tivm::new([q0,q1,q2,q3]);
+        assert_eq!(tet.volume(), 1.0);
+    }
+
+    #[test]
+    fn vol_xyz(){
+        let cube_edge:f64 = 2_f64.sqrt()/2.0;
+        let v0 = vlib::Vxyz::new(&[0.0, 0.0, 0.0]);
+        let v1 = vlib::Vxyz::new(&[cube_edge, 0.0, 0.0]);
+        let v2 = vlib::Vxyz::new(&[0.0, cube_edge, 0.0]);
+        let v3 = vlib::Vxyz::new(&[0.0, 0.0, cube_edge]);
+        let tet = tetrahedron::Txyz::new([v0,v1,v2,v3]);
+        assert_eq!(tet.volume(), 0.5);
     }
 }
