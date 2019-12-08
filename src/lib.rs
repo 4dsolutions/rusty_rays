@@ -1,3 +1,5 @@
+extern crate approx;
+
 pub mod vlib {
 
     #[derive(Copy, Clone)]
@@ -217,6 +219,15 @@ pub mod tetrahedron {
                 d: rays[3],
             }
         }
+
+        pub fn to_ivm(&self) -> Tivm {
+            Tivm {
+                a: self.a.to_ivm(),
+                b: self.b.to_ivm(),
+                c: self.c.to_ivm(),
+                d: self.d.to_ivm(),
+            }
+        }
     }
 
     pub struct Tivm {
@@ -233,6 +244,15 @@ pub mod tetrahedron {
                 b: rays[1],
                 c: rays[2],
                 d: rays[3],
+            }
+        }
+
+        pub fn to_xyz(&self) -> Txyz {
+            Txyz {
+                a: self.a.to_xyz(),
+                b: self.b.to_xyz(),
+                c: self.c.to_xyz(),
+                d: self.d.to_xyz(),
             }
         }
     }
@@ -254,7 +274,7 @@ pub mod tetrahedron {
             edges.volume()
         }
     }
-    
+
     impl Tet for Txyz {
         fn volume(&self) -> f64 {
             let edges = TetEdges{
@@ -327,14 +347,11 @@ pub mod tetrahedron {
 
 #[cfg(test)]
 mod tests {
+    use std::f64;
     use super::*;
     use vlib::Ray;
     use tetrahedron::Tet;
 
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
 
     #[test]
     fn cube() {
@@ -356,8 +373,9 @@ mod tests {
             cd: 1.0,
             db: 1.0,
         };
-        assert_eq!(4.0  * corner_tet.volume() +
-                                unit_tet.volume(), 3.0)
+
+        approx::abs_diff_eq!(4.0  * corner_tet.volume() +
+                                unit_tet.volume(), 3.0);
     }
 
     #[test]
@@ -375,7 +393,7 @@ mod tests {
         let q2 = vlib::Vivm::new(&[0.0, 0.0, 1.0, 0.0]);
         let q3 = vlib::Vivm::new(&[0.0, 0.0, 0.0, 1.0]);
         let tet = tetrahedron::Tivm::new([q0,q1,q2,q3]);
-        assert_eq!(tet.volume(), 1.0);
+        approx::abs_diff_eq!(tet.volume(), 1.0);
     }
 
     #[test]
@@ -386,6 +404,17 @@ mod tests {
         let v2 = vlib::Vxyz::new(&[0.0, cube_edge, 0.0]);
         let v3 = vlib::Vxyz::new(&[0.0, 0.0, cube_edge]);
         let tet = tetrahedron::Txyz::new([v0,v1,v2,v3]);
-        assert_eq!(tet.volume(), 0.5);
+        approx::abs_diff_eq!(tet.volume(), 0.5);
+    }
+
+    #[test]
+    fn vol_convert(){
+        let q0 = vlib::Vivm::new(&[1.0, 0.0, 0.0, 0.0]);
+        let q1 = vlib::Vivm::new(&[0.0, 1.0, 0.0, 0.0]);
+        let q2 = vlib::Vivm::new(&[0.0, 0.0, 1.0, 0.0]);
+        let q3 = vlib::Vivm::new(&[0.0, 0.0, 0.0, 1.0]);
+        let tet = tetrahedron::Tivm::new([q0,q1,q2,q3]);
+        let newtet = tet.to_xyz();
+        approx::abs_diff_eq!(newtet.volume(), 1.0);
     }
 }
