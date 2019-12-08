@@ -1,5 +1,7 @@
 use rays::vlib;
 use rays::vlib::Ray;
+use rays::tetrahedron::TetEdges;
+
 
 fn main() {
     println!("Hello, world");
@@ -26,4 +28,28 @@ fn main() {
 
     println!("Length of ivm = {}", ivm.length());
     println!("Length of xyz = {}", xyz.length());
+
+    let unit_tet = TetEdges {
+        ab: 1.0,
+        ac: 1.0,
+        ad: 1.0,
+        bc: 1.0,
+        cd: 1.0,
+        db: 1.0,
+    };
+
+    println!("Unit Tet volume: {}", unit_tet.volume());
+
+    let corner_tet = TetEdges {
+        ab: 2_f64.sqrt()/2.0,
+        ac: 2_f64.sqrt()/2.0,
+        ad: 2_f64.sqrt()/2.0,
+        bc: 1.0,
+        cd: 1.0,
+        db: 1.0,
+    };
+
+    println!("Cube Volume: {}", 4.0 * corner_tet.volume() +
+                                unit_tet.volume());
+
 }
