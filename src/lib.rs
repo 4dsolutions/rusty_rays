@@ -193,3 +193,67 @@ pub mod vlib {
 
     }
 }
+
+pub mod tetrahedron {
+
+    pub struct TetEdges {
+        pub ab: f64,
+        pub ac: f64,
+        pub ad: f64,
+        pub bc: f64,
+        pub cd: f64,
+        pub db: f64,
+    }
+
+    impl TetEdges {
+        pub fn volume(&self) -> f64 {
+            let a = self.ab;
+            let b = self.ac;
+            let c = self.ad;
+            let d = self.bc;
+            let e = self.cd;
+            let f = self.db;
+            let a2 = a*a;
+            let b2 = b*b;
+            let c2 = c*c;
+            let d2 = d*d;
+            let e2 = e*e;
+            let f2 = f*f;
+
+            let mut sumval = f2 * a2 * b2;
+            sumval +=  d2 * a2 * c2;
+            sumval +=  a2 * b2 * e2;
+            sumval +=  c2 * b2 * d2;
+            sumval +=  e2 * c2 * a2;
+            sumval +=  f2 * c2 * b2;
+            sumval +=  e2 * d2 * a2;
+            sumval +=  b2 * d2 * f2;
+            sumval +=  b2 * e2 * f2;
+            sumval +=  d2 * e2 * c2;
+            sumval +=  a2 * f2 * e2;
+            sumval +=  d2 * f2 * c2; 
+            let addopen = sumval;
+
+            let mut sumval = a2 * b2 * d2;
+            sumval +=  d2 * e2 * f2;
+            sumval +=  b2 * c2 * e2;
+            sumval +=  a2 * c2 * f2;
+            let addclosed = sumval;   
+            
+            let mut sumval =  a2 * e2 * (a2 + e2);
+            sumval += b2 * f2 * (b2 + f2);
+            sumval += c2 * d2 * (c2 + d2);
+            let addopposite = sumval;
+
+            ((addopen - addclosed - addopposite)/2.0).sqrt()
+        }
+    }
+
+}
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn it_works() {
+        assert_eq!(2 + 2, 4);
+    }
+}
