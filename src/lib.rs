@@ -250,10 +250,46 @@ pub mod tetrahedron {
     }
 
 }
+
 #[cfg(test)]
 mod tests {
+    use super::*;
+    use vlib::Ray;
+
     #[test]
     fn it_works() {
         assert_eq!(2 + 2, 4);
+    }
+
+    #[test]
+    fn cube() {
+
+        let unit_tet = tetrahedron::TetEdges {
+            ab: 1.0,
+            ac: 1.0,
+            ad: 1.0,
+            bc: 1.0,
+            cd: 1.0,
+            db: 1.0,
+        };
+
+        let corner_tet = tetrahedron::TetEdges {
+            ab: 2_f64.sqrt()/2.0,
+            ac: 2_f64.sqrt()/2.0,
+            ad: 2_f64.sqrt()/2.0,
+            bc: 1.0,
+            cd: 1.0,
+            db: 1.0,
+        };
+        assert_eq!(4.0  * corner_tet.volume() +
+                                unit_tet.volume(), 3.0)
+    }
+
+    #[test]
+    fn add_xyz(){
+        let x1 = vlib::Vxyz::new(&[1.0_f64, 1.0, 1.0]);
+        let x2 = vlib::Vxyz::new(&[1.0_f64, 1.0, 1.0]);
+        let r = x1.add(&x2); 
+        assert_eq!((2.0_f64, 2.0, 2.0), (r.x, r.y, r.z));
     }
 }
